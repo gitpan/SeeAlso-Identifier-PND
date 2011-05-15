@@ -1,0 +1,207 @@
+package SeeAlso::Identifier::PND;
+use strict;
+use warnings;
+
+BEGIN {
+    use Exporter ();
+    use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
+    $VERSION     = '0.57';
+    @ISA         = qw(Exporter);
+    #Give a hoot don't pollute, do not export more than needed by default
+    @EXPORT      = qw();
+    @EXPORT_OK   = qw();
+    %EXPORT_TAGS = ();
+}
+
+use base qw( SeeAlso::Identifier::GND );
+#use Carp;
+
+#################### subroutine header end ####################
+
+
+=head1 NAME
+
+SeeAlso::Identifier::PND - SeeAlso handling of PND Numbers (Personennormdatei)
+
+
+=head1 SYNOPSIS
+
+  my $pnd = new SeeAlso::Identifier::PND "";
+
+  print "invalid/empty" unless $pnd; # $pnd is defined but false !
+
+  $pnd->value( '101115658X' );
+  $pnd->value; # '' or PND identifier again (101115658X)
+  $pnd; # PND identifier as URI (http://d-nb.info/gnd/101115658X)
+
+  $pnd->canonical; # http://d-nb.info/gnd/101115658X
+
+
+=head1 DESCRIPTION
+
+This module handles identification numbers of the Personennormdatei of the
+German National Library (DNB).
+
+The constructor of SeeAlso::Identifier::PND always returns an defined identifier 
+with all methods provided by L<SeeAlso::Identifier>. 
+As canonical form the URN representation of PND with prefix C<<http://d-nb.info/gnd>>
+is used (these HTTP URIs actually resolve).
+As hashed and "pretty" form of an PND number, the number itself is used (including check digit).
+
+The authority files PND, GKD and SWD will be combined to the GND (Gemeinsame
+Norm-Datei) in early 2012, the identifiers of "legacy" records however will
+remain valid. They already are distinct and as such the parent module
+L<<SeeAlso::Identifier::GND>> handles them simultaneously. As of v0.57 
+SeeAlso::Identifier::GND is lacking support for 10-digit identifiers and
+does not implement all possible constraints (e.g. there are conflicting
+checksum algorithms but by looking at the identifier you can not always
+determine the authority file it belongs to and therefore there is no
+certainity about the correct checksum).
+
+For compatibility reasons with SeeAlso::Identifier::GND the objects of this
+module are implemented as blessed hashes instead of blessed scalars.
+
+=head1 METHODS
+
+=head2 parse ( $value )
+
+Get and/or set the value of the PND identifier. Returns an empty string or the valid
+PND number. You can also use this method as function.
+
+Older numbers begin with "10" to "16" and have 8 digits plus check digit (which might be "X"),
+Newer assigned since April 2011 have 9 digits plus check digit(0-X) and currently begin with "10".
+
+Although there is no official form known which notates PND numbers with dash(es),
+their input is permitted, also prefixes "PND", "PND " and the likes.
+
+=cut
+
+sub parse {
+    my $value = shift;
+    $value = shift if ref($value) and scalar @_;
+
+    return "" unless defined $value;
+
+    $value =~ s=^(http://d-nb.info/gnd/|PND[: /]?)==i;
+    $value =~ s/^0+//;
+
+    $value =~ tr/x-/X/d;
+    return "" unless $value =~ /^1(0\d{7}|[0-6]\d{6})[\dX]$/;
+
+    return $value;
+}
+
+=head2 value
+
+get/set using parse, not parent's method
+
+=cut
+
+sub value {
+  my($self, $value) = @_;
+  $self->{value} = $self->parse($value) if defined $value;
+  return $self->{value};
+}
+
+=head2 valid
+
+Performs checksum calculation for already parsed PND numbers.
+
+The mod-11-checksum is constructed the same way as for the "PICA PPN" (Pica Production Numbar 
+of the German National Library (PND identifiers acutally are PICA PPNs).
+
+=cut
+
+sub valid {
+    return undef unless $_[0]->{value};
+    my @i = reverse split(//, $_[0]->{value});
+    $i[0] = 10 if $i[0] =~ /X/i;
+
+    my ($z, $w) = (0, 1);
+    foreach ( @i ) {
+        $z += ($_ * $w++)};
+    return ($z % 11) == 0;
+}
+
+
+=head2 hash
+
+This is only since SeeAlso::Identifier::GND as of v0.57 is not compliant to the
+interfaces specified by SeeAlso::Identifier with respect to "indexed" being an alias for "hash".
+
+=cut
+
+sub hash {
+  my $self = shift @_;
+  return $self->valid ? $self->{value} : undef;
+}
+
+=head2 canonical
+
+This is only since SeeAlso::Identifier::GND as of v0.57 is not compliant to the
+interfaces specified by SeeAlso::Identifier with respect to "normalized" being an alias for "canonical".
+
+=cut
+
+sub canonical {
+  my $self = shift @_;
+  return $self->valid ? ("http://d-nb.info/gnd/" . $self->{value}) : "";
+}
+
+
+=head2 cmp
+
+establish "numerical" order by left-padding with zeroes
+
+=cut
+
+sub cmp {
+    my $self = shift;
+    my $string1 = sprintf("%010s", $self->{value});
+    my $class = ref($self);
+    my $second = shift;
+    my $string2 = sprintf("%010s", $class->new($second)->{value});
+    return $string1 cmp $string2;
+}
+
+=head2 pretty
+
+Try to give the most official form of the identifier.
+
+=cut
+
+sub pretty {
+  my $self = shift @_;
+  return $self->valid ? $self->{value} : "";
+}
+
+
+=head1 AUTHOR
+
+Thomas Berger C<< <THB@cpan.org> >>
+
+=head1 ACKNOWLEDGEMENTS
+
+Jakob Voss C<< <jakob.voss@gbv.de> >> crafted SeeAlso::Identifier::GND.
+
+=head1 COPYRIGHT
+
+This program is free software; you can redistribute
+it and/or modify it under the same terms as Perl itself.
+
+The full text of the license can be found in the
+LICENSE file included with this module.
+
+
+=head1 SEE ALSO
+
+perl(1), L<<SeeAlso::Identifer::GND>>.
+
+=cut
+
+#################### main pod documentation end ###################
+
+
+1;
+# The preceding line will help the module return a true value
+
