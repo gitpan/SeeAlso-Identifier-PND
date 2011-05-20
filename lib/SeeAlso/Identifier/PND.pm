@@ -5,7 +5,7 @@ use warnings;
 BEGIN {
     use Exporter ();
     use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-    $VERSION     = '0.57';
+    $VERSION     = '0.5701';
     @ISA         = qw(Exporter);
     #Give a hoot don't pollute, do not export more than needed by default
     @EXPORT      = qw();
@@ -107,13 +107,13 @@ sub value {
 
 Performs checksum calculation for already parsed PND numbers.
 
-The mod-11-checksum is constructed the same way as for the "PICA PPN" (Pica Production Numbar 
+The mod-11-checksum is constructed the same way as for the "PICA PPN" (Pica Production Number 
 of the German National Library (PND identifiers acutally are PICA PPNs).
 
 =cut
 
 sub valid {
-    return undef unless $_[0]->{value};
+    return undef unless $_[0]->{value} and $_[0]->{value} =~ /^1(0\d{7}|[0-6]\d{6})[\dX]$/;
     my @i = reverse split(//, $_[0]->{value});
     $i[0] = 10 if $i[0] =~ /X/i;
 
@@ -133,7 +133,18 @@ interfaces specified by SeeAlso::Identifier with respect to "indexed" being an a
 
 sub hash {
   my $self = shift @_;
-  return $self->valid ? $self->{value} : undef;
+  if ( defined $_[0] ) {
+      if ( $_[0] =~ /^1(0\d{7}|[0-6]\d{6})[\dXx]$/ ) {
+          $self->value($_[0])}
+      else {
+          return $self->{value} = undef}
+    }
+  return $self->valid ? $self->{value} : "";
+}
+
+sub indexed {
+  my $self = shift @_;
+  return $self->hash;
 }
 
 =head2 canonical
@@ -145,9 +156,19 @@ interfaces specified by SeeAlso::Identifier with respect to "normalized" being a
 
 sub canonical {
   my $self = shift @_;
+  if ( defined $_[0] ) {
+      if ( $_[0] =~ m=^http://d-nb.info/gnd/= ) {
+          $self->value($_[0])}
+      else {
+          return $self->{value} = undef}
+    }
   return $self->valid ? ("http://d-nb.info/gnd/" . $self->{value}) : "";
 }
 
+sub normalized {
+  my $self = shift @_;
+  return $self->canonical;
+}
 
 =head2 cmp
 
@@ -178,11 +199,11 @@ sub pretty {
 
 =head1 AUTHOR
 
-Thomas Berger C<< <THB@cpan.org> >>
+Thomas Berger C< <THB@gymel.com> >
 
 =head1 ACKNOWLEDGEMENTS
 
-Jakob Voss C<< <jakob.voss@gbv.de> >> crafted SeeAlso::Identifier::GND.
+Jakob Voss C< <jakob.voss@gbv.de> > crafted SeeAlso::Identifier::GND.
 
 =head1 COPYRIGHT
 
@@ -195,7 +216,7 @@ LICENSE file included with this module.
 
 =head1 SEE ALSO
 
-perl(1), L<<SeeAlso::Identifer::GND>>.
+perl(1), L<SeeAlso::Identifer::GND>.
 
 =cut
 

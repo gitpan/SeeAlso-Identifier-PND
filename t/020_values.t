@@ -2,7 +2,7 @@
 
 # t/020_values.t - check illegal values
 
-use Test::More tests => 47;
+use Test::More tests => 63;
 
 use SeeAlso::Identifier::PND;
 
@@ -67,4 +67,22 @@ ok($object->value("15617913x") && $object->valid(), "valid checksum x");
 is($object->value("15617913Y"), "", "invalid checksum Y");
 is($object->value("15617913-"), "", "invalid checksum -");
 
+# conversions
+is($object->value("132010445"), "132010445", "valid 9 digits again");
+is($object->value(), "132010445", "valid 9 digits value");
+is($object->hash(), "132010445", "valid 9 digits hash");
+is($object->indexed(), $object->hash(), "valid 9 digits indexed");
+is($object->canonical(), "http://d-nb.info/gnd/132010445", "valid 9 digits canonical");
+is($object->normalized(), $object->canonical(), "valid 9 digits normalized");
+is("$object", $object->canonical(), "valid 9 digits stringification");
+is($object->pretty(), "132010445", "valid 9 digits pretty");
+
+is($object->value("1011171872"), "1011171872", "valid 10 digits again");
+is($object->value(), "1011171872", "valid 10 digits value");
+is($object->hash(), "1011171872", "valid 10 digits hash");
+is($object->indexed(), $object->hash(), "valid 10 digits indexed");
+is($object->canonical(), "http://d-nb.info/gnd/1011171872", "valid 10 digits canonical");
+is($object->normalized(), $object->canonical(), "valid 10 digits normalized");
+is("$object", $object->canonical(), "valid 10 digits stringification");
+is($object->pretty(), "1011171872", "valid 10 digits pretty");
 
