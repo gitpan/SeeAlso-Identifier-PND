@@ -5,7 +5,7 @@ use warnings;
 BEGIN {
     use Exporter ();
     use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-    $VERSION     = '0.5701';
+    $VERSION     = '0.5702';
     @ISA         = qw(Exporter);
     #Give a hoot don't pollute, do not export more than needed by default
     @EXPORT      = qw();
@@ -36,6 +36,7 @@ SeeAlso::Identifier::PND - SeeAlso handling of PND Numbers (Personennormdatei)
 
   $pnd->canonical; # http://d-nb.info/gnd/101115658X
 
+  $pnd->pretty; # '' or PND identifier again (101115658X)
 
 =head1 DESCRIPTION
 
@@ -44,14 +45,14 @@ German National Library (DNB).
 
 The constructor of SeeAlso::Identifier::PND always returns an defined identifier 
 with all methods provided by L<SeeAlso::Identifier>. 
-As canonical form the URN representation of PND with prefix C<<http://d-nb.info/gnd>>
+As canonical form the URN representation of PND with prefix C<http://d-nb.info/gnd> 
 is used (these HTTP URIs actually resolve).
 As hashed and "pretty" form of an PND number, the number itself is used (including check digit).
 
 The authority files PND, GKD and SWD will be combined to the GND (Gemeinsame
 Norm-Datei) in early 2012, the identifiers of "legacy" records however will
 remain valid. They already are distinct and as such the parent module
-L<<SeeAlso::Identifier::GND>> handles them simultaneously. As of v0.57 
+L<SeeAlso::Identifier::GND> handles them simultaneously. As of v0.57 
 SeeAlso::Identifier::GND is lacking support for 10-digit identifiers and
 does not implement all possible constraints (e.g. there are conflicting
 checksum algorithms but by looking at the identifier you can not always
@@ -65,11 +66,10 @@ module are implemented as blessed hashes instead of blessed scalars.
 
 =head2 parse ( $value )
 
-Get and/or set the value of the PND identifier. Returns an empty string or the valid
-PND number. You can also use this method as function.
+Get and/or set the value of the PND identifier. Returns an empty string or a possibly valid PND number. You can also use this method as function.
 
 Older numbers begin with "10" to "16" and have 8 digits plus check digit (which might be "X"),
-Newer assigned since April 2011 have 9 digits plus check digit(0-X) and currently begin with "10".
+More recently (since April 2011) assigned numbers have 9 digits plus check digit(0-X) and currently begin with "10".
 
 Although there is no official form known which notates PND numbers with dash(es),
 their input is permitted, also prefixes "PND", "PND " and the likes.
@@ -77,21 +77,24 @@ their input is permitted, also prefixes "PND", "PND " and the likes.
 =cut
 
 sub parse {
-    my $value = shift;
-    $value = shift if ref($value) and scalar @_;
+    local($_) = shift;
+    $_ = shift if ref($_) and scalar @_;
 
-    return "" unless defined $value;
+    return "" unless defined $_;
 
-    $value =~ s=^(http://d-nb.info/gnd/|PND[: /]?)==i;
-    $value =~ s/^0+//;
+    s/^\s+//; s/\s+$//;
+    s=^(http://d-nb.info/gnd/|PND[: /-]*)==i;
 
-    $value =~ tr/x-/X/d;
-    return "" unless $value =~ /^1(0\d{7}|[0-6]\d{6})[\dX]$/;
+    s/^0+//;
+    tr/x-/X/d;
 
-    return $value;
+    return "" unless /^1(0\d{7}|[0-6]\d{6})[\dX]$/;
+
+    return $_;
 }
 
-=head2 value
+
+=head2 value ( [$value] )
 
 get/set using parse, not parent's method
 
@@ -102,6 +105,7 @@ sub value {
   $self->{value} = $self->parse($value) if defined $value;
   return $self->{value};
 }
+
 
 =head2 valid
 
@@ -124,10 +128,11 @@ sub valid {
 }
 
 
-=head2 hash
+=head2 hash ( [$value] )
 
-This is only since SeeAlso::Identifier::GND as of v0.57 is not compliant to the
-interfaces specified by SeeAlso::Identifier with respect to "indexed" being an alias for "hash".
+Sets and/or gets a form of the identifier suitable for processing.
+In this class this will yield the same form as "parse", provided
+it passes the "valid" test(s). 
 
 =cut
 
@@ -142,15 +147,25 @@ sub hash {
   return $self->valid ? $self->{value} : "";
 }
 
+
+=head2 indexed ( [$value] )
+
+This is only since the parent class L<SeeAlso::Identifier::GND> as of v0.57
+is not compliant to the interfaces specified by L<SeeAlso::Identifier>
+with respect to "indexed" being an alias for "hash".
+
+=cut
+
 sub indexed {
   my $self = shift @_;
   return $self->hash;
 }
 
-=head2 canonical
 
-This is only since SeeAlso::Identifier::GND as of v0.57 is not compliant to the
-interfaces specified by SeeAlso::Identifier with respect to "normalized" being an alias for "canonical".
+=head2 canonical ( [$value] )
+
+Yields the (for SeeAlso) canonical form of the identifier (if valid) as
+an URI.
 
 =cut
 
@@ -165,14 +180,25 @@ sub canonical {
   return $self->valid ? ("http://d-nb.info/gnd/" . $self->{value}) : "";
 }
 
+
+=head2 normalized ( [$value] )
+
+This is only since the parent class L<SeeAlso::Identifier::GND> as of v0.57
+is not compliant to the interfaces specified by L<SeeAlso::Identifier>
+with respect to "normalized" being an alias for "canonical".
+
+=cut
+
 sub normalized {
   my $self = shift @_;
   return $self->canonical;
 }
 
-=head2 cmp
 
-establish "numerical" order by left-padding with zeroes
+=head2 cmp ( $value )
+
+For comparisons a "numerical" order is established by left-padding 
+the identifiers with sufficiently many zeroes.
 
 =cut
 
@@ -184,6 +210,7 @@ sub cmp {
     my $string2 = sprintf("%010s", $class->new($second)->{value});
     return $string1 cmp $string2;
 }
+
 
 =head2 pretty
 
@@ -199,11 +226,11 @@ sub pretty {
 
 =head1 AUTHOR
 
-Thomas Berger C< <THB@gymel.com> >
+Thomas Berger C<< <THB@gymel.com> >>
 
 =head1 ACKNOWLEDGEMENTS
 
-Jakob Voss C< <jakob.voss@gbv.de> > crafted SeeAlso::Identifier::GND.
+Jakob Voss C<< <jakob.voss@gbv.de> >> crafted SeeAlso::Identifier::GND.
 
 =head1 COPYRIGHT
 
