@@ -1,5 +1,10 @@
 Revision history for Perl module SeeAlso::Identifier::PND
 
+0.5703 Mon Jul 18 09:30:20 CEST 2011
+    - loose required version of M:B
+    - more aggressive cleanup before syntax checks
+    - pod fixes
+
 0.5701 Fri May 20 10:15:29 CEST 2011
     - hash/index and canonical/normalized can now also set values
       like other SeeAlso::Identifier classes do.

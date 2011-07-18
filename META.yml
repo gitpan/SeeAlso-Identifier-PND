@@ -3,7 +3,7 @@ abstract: 'SeeAlso handling of PND Numbers (Personennormdatei)'
 author:
   - 'Thomas Berger C<< <THB@gymel.com> >>'
 configure_requires:
-  Module::Build: 0.36
+  Module::Build: 0.35
 generated_by: 'Module::Build version 0.3613'
 license: perl
 meta-spec:
@@ -13,10 +13,10 @@ name: SeeAlso-Identifier-PND
 provides:
   SeeAlso::Identifier::PND:
     file: lib/SeeAlso/Identifier/PND.pm
-    version: 0.5702
+    version: 0.5703
 requires:
   SeeAlso::Identifier: 0.46
   SeeAlso::Identifier::GND: 0.54
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.5702
+version: 0.5703

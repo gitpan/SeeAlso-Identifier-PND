@@ -4,6 +4,9 @@ use Module::Build;
 Module::Build->new
     ( module_name     => 'SeeAlso::Identifier::PND',
       license         => 'perl',
+   configure_requires => {
+		Module::Build => 0.35,
+                         },
       requires        => {
 		SeeAlso::Identifier      => 0.46,
 		SeeAlso::Identifier::GND => 0.54,
