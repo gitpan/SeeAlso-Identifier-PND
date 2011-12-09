@@ -2,18 +2,20 @@
 
 # t/020_values.t - check illegal values
 
-use Test::More tests => 66;
+use Test::More tests => 75;
 
 use SeeAlso::Identifier::PND;
 
 # new
 my $object = SeeAlso::Identifier::PND->new ();
 
-# get value
+# assign value
 is($object->canonical("132010445"), undef, "valid 9 digits");
 is($object->canonical("13201044-5"), undef, "valid 9 digits with dash");
 is($object->canonical("PND:132010445"), undef, "valid 9 digits with prefix");
 is($object->canonical("http://d-nb.info/gnd/132010445"), "http://d-nb.info/gnd/132010445", "valid 9 digits URI");
+
+is($object->canonical("188416994"), undef, "valid 9 digits 2011");
 
 is($object->canonical("http://d-nb.info/gnd/13201044"), "", "too short");
 is($object->canonical("http://d-nb.info/gnd/1320104-4"), "", "too short with dash");
@@ -52,8 +54,8 @@ is($object->canonical("http://d-nb.info/gnd/PND:13201044"), "", "too short with 
 is($object->canonical("http://d-nb.info/gnd/13201044"), "", "too short URI");
 
 is($object->canonical("http://d-nb.info/gnd/1196538262"), "", "too long");
-is($object->canonical("http://d-nb.info/gnd/194883512"), "", "too long, with dash");
-is($object->canonical("http://d-nb.info/gnd/1948 83512"), "", "too long, with spaces");
+is($object->canonical("http://d-nb.info/gnd/119653826-2"), "", "too long, with dash");
+is($object->canonical("http://d-nb.info/gnd/1196 538262"), "", "too long, with spaces");
 is($object->canonical("http://d-nb.info/gnd/1196538262"), "", "too long URI");
 
 is($object->canonical("http://d-nb.info/gnd/1948-8352"), "", "wrong checksum");
@@ -72,6 +74,15 @@ is($object->canonical("http://d-nb.info/gnd/15617913Y"), "", "invalid checksum Y
 is($object->canonical("http://d-nb.info/gnd/15617913-"), "", "invalid checksum -");
 
 # conversions
+is($object->canonical("http://d-nb.info/gnd/188416994"), "http://d-nb.info/gnd/188416994", "valid 9 digits 2011 URI again");
+is($object->value(), "188416994", "valid 9 digits 2011 value");
+is($object->hash(), "188416994", "valid 9 digits 2011 hash");
+is($object->indexed(), $object->hash(), "valid 9 digits 2011 indexed");
+is($object->canonical(), "http://d-nb.info/gnd/188416994", "valid 9 digits 2011 canonical");
+is($object->normalized(), $object->canonical(), "valid 9 digits 2011 normalized");
+is("$object", $object->canonical(), "valid 9 digits 2011 stringification");
+is($object->pretty(), "188416994", "valid 9 digits 2011 pretty");
+
 is($object->canonical("http://d-nb.info/gnd/132010445"), "http://d-nb.info/gnd/132010445", "valid 9 digits URI again");
 is($object->value(), "132010445", "valid 9 digits value");
 is($object->hash(), "132010445", "valid 9 digits hash");

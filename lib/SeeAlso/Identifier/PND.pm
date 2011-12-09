@@ -5,7 +5,7 @@ use warnings;
 BEGIN {
     use Exporter ();
     use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-    $VERSION     = '0.5703';
+    $VERSION     = '0.59';
     @ISA         = qw(Exporter);
     #Give a hoot don't pollute, do not export more than needed by default
     @EXPORT      = qw();
@@ -89,7 +89,7 @@ sub parse {
     s/^0+//;
     tr/x-/X/d;
 
-    return "" unless /^1(0\d{7}|[0-6]\d{6})[\dX]$/;
+    return "" unless /^10?\d{7}[\dX]$/;
 
     return $_;
 }
@@ -118,7 +118,7 @@ of the German National Library (PND identifiers acutally are PICA PPNs).
 =cut
 
 sub valid {
-    return undef unless $_[0]->{value} and $_[0]->{value} =~ /^1(0\d{7}|[0-6]\d{6})[\dX]$/;
+    return undef unless $_[0]->{value} and $_[0]->{value} =~ /^10?\d{7}[\dX]$/;
     my @i = reverse split(//, $_[0]->{value});
     $i[0] = 10 if $i[0] =~ /X/i;
 
@@ -140,7 +140,7 @@ it passes the "valid" test(s).
 sub hash {
   my $self = shift @_;
   if ( defined $_[0] ) {
-      if ( $_[0] =~ /^1(0\d{7}|[0-6]\d{6})[\dXx]$/ ) {
+      if ( $_[0] =~ /^10?\d{7}[\dXx]$/ ) {
           $self->value($_[0])}
       else {
           return $self->{value} = undef}

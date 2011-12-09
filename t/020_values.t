@@ -2,7 +2,7 @@
 
 # t/020_values.t - check illegal values
 
-use Test::More tests => 63;
+use Test::More tests => 64;
 
 use SeeAlso::Identifier::PND;
 
@@ -14,6 +14,8 @@ is($object->value("132010445"), "132010445", "valid 9 digits");
 is($object->value("13201044-5"), "132010445", "valid 9 digits with dash");
 is($object->value("PND:132010445"), "132010445", "valid 9 digits with prefix");
 is($object->value("http://d-nb.info/gnd/132010445"), "132010445", "valid 9 digits URI");
+
+is($object->value("188416994"), "188416994", "valid 9 digits 2011");
 
 is($object->value("13201044"), "", "too short");
 is($object->value("1320104-4"), "", "too short with dash");
@@ -48,8 +50,8 @@ is($object->value("PND:13201044"), "", "too short with prefix");
 is($object->value("http://d-nb.info/gnd/13201044"), "", "too short URI");
 
 is($object->value("1196538262"), "", "too long");
-is($object->value("194883512"), "", "too long, with dash");
-is($object->value("1948 83512"), "", "too long, with spaces");
+is($object->value("119653826-2"), "", "too long, with dash");
+is($object->value("1196 538262"), "", "too long, with spaces");
 is($object->value("http://d-nb.info/gnd/1196538262"), "", "too long URI");
 
 is($object->value("1948-8352"), "", "wrong checksum");

@@ -2,7 +2,7 @@
 
 # t/022_hash.t - check constuctor
 
-use Test::More tests => 65;
+use Test::More tests => 66;
 
 use SeeAlso::Identifier::PND;
 
@@ -14,6 +14,8 @@ is($object->hash("132010445"), "132010445", "valid 9 digits");
 is($object->hash("13201044-5"), undef, "valid 9 digits with dash");
 is($object->hash("PND:132010445"), undef, "valid 9 digits with prefix");
 is($object->hash("http://d-nb.info/gnd/132010445"), undef, "valid 9 digits URI");
+
+is($object->hash("188416994"), "188416994", "valid 9 digits 2011");
 
 is($object->hash("13201044"), undef, "too short");
 is($object->hash("1320104-4"), undef, "too short with dash");
@@ -52,8 +54,8 @@ is($object->hash("PND:13201044"), undef, "too short with prefix");
 is($object->hash("http://d-nb.info/gnd/13201044"), undef, "too short URI");
 
 is($object->hash("1196538262"), undef, "too long");
-is($object->hash("194883512"), undef, "too long, with dash");
-is($object->hash("1948 83512"), undef, "too long, with spaces");
+is($object->hash("119653826-2"), undef, "too long, with dash");
+is($object->hash("1196 538262"), undef, "too long, with spaces");
 is($object->hash("http://d-nb.info/gnd/1196538262"), undef, "too long URI");
 
 is($object->hash("1948-8352"), undef, "wrong checksum");
