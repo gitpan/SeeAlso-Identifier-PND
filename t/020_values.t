@@ -2,7 +2,7 @@
 
 # t/020_values.t - check illegal values
 
-use Test::More tests => 64;
+use Test::More tests => 69;
 
 use SeeAlso::Identifier::PND;
 
@@ -24,8 +24,13 @@ is($object->value("http://d-nb.info/gnd/13201044"), "", "too short URI");
 
 is($object->value("1011171872"), "1011171872", "valid 10 digits");
 is($object->value("101117187-2"), "1011171872", "valid 10 digits with dash");
-is($object->value("PND:1011171872"), "1011171872", "valid 10 digits with prefix");
+is($object->value("PND:1011171872"), "1011171872", "valid 10 digits with prefix ':'");
+is($object->value("PND 1011171872"), "1011171872", "valid 10 digits with prefix ' '");
+is($object->value("PND/1011171872"), "1011171872", "valid 10 digits with prefix '/'");
+is($object->value("PND-1011171872"), "1011171872", "valid 10 digits with prefix '-'");
 is($object->value("http://d-nb.info/gnd/1011171872"), "1011171872", "valid 10 digits URI");
+is($object->value("(DE-588a)1011171872"), "1011171872", "MARC-prefixed PND number");
+is($object->value("(DE-588)1011171872"), "1011171872", "MARC-prefixed GND number");
 
 is($object->value("10111718723"), "", "too long");
 is($object->value("1011171872-3"), "", "too long with dash");

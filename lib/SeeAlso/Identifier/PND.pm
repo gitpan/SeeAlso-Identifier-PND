@@ -5,7 +5,7 @@ use warnings;
 BEGIN {
     use Exporter ();
     use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-    $VERSION     = '0.59';
+    $VERSION     = '0.60';
     @ISA         = qw(Exporter);
     #Give a hoot don't pollute, do not export more than needed by default
     @EXPORT      = qw();
@@ -31,6 +31,10 @@ SeeAlso::Identifier::PND - SeeAlso handling of PND Numbers (Personennormdatei)
   print "invalid/empty" unless $pnd; # $pnd is defined but false !
 
   $pnd->value( '101115658X' );
+  $pnd->value( 'PND:101115658X' );
+  $pnd->value( '(DE-588)101115658X' );
+  $pnd->value( '(DE-588a)101115658X' );
+  $pnd->value( 'http://d-nb.info/gnd/101115658X' );
   $pnd->value; # '' or PND identifier again (101115658X)
   $pnd; # PND identifier as URI (http://d-nb.info/gnd/101115658X)
 
@@ -40,8 +44,9 @@ SeeAlso::Identifier::PND - SeeAlso handling of PND Numbers (Personennormdatei)
 
 =head1 DESCRIPTION
 
-This module handles identification numbers of the Personennormdatei of the
-German National Library (DNB).
+This module handles identification numbers of the former Personennormdatei (PND)
+of the German National Library (DNB). These continue to be valid identification
+numbers of the successor Gemeinsame Normdatei (GND).
 
 The constructor of SeeAlso::Identifier::PND always returns an defined identifier 
 with all methods provided by L<SeeAlso::Identifier>. 
@@ -49,7 +54,7 @@ As canonical form the URN representation of PND with prefix C<http://d-nb.info/g
 is used (these HTTP URIs actually resolve).
 As hashed and "pretty" form of an PND number, the number itself is used (including check digit).
 
-The authority files PND, GKD and SWD will be combined to the GND (Gemeinsame
+The authority files PND, GKD and SWD have been combined to the GND (Gemeinsame
 Norm-Datei) in early 2012, the identifiers of "legacy" records however will
 remain valid. They already are distinct and as such the parent module
 L<SeeAlso::Identifier::GND> handles them simultaneously. As of v0.57 
@@ -59,8 +64,14 @@ checksum algorithms but by looking at the identifier you can not always
 determine the authority file it belongs to and therefore there is no
 certainity about the correct checksum).
 
+This module SeeAlso::Identifier::PND does not support the legacy GND numbers
+for former entries of GKD and SWD and therefore its realm continues to be
+restricted to authority records for persons and names (Tn and Tp) within
+the GND.
+
 For compatibility reasons with SeeAlso::Identifier::GND the objects of this
-module are implemented as blessed hashes instead of blessed scalars.
+module are implemented as blessed hashes instead of blessed scalars as
+they would be by inheritance from SeeAlso::Identifier.
 
 =head1 METHODS
 
@@ -84,7 +95,7 @@ sub parse {
 
 #   s/^\s+//; s/\s+$//; s/\s+/ /g;  # normalize-spaces()
     s/\s+//g;      # no kind of spaces makes sense in input data
-    s=^(?:http://d-nb.info/gnd/|PND[:/-]*)([0-9xX-]+)=$1=i;
+    s=^(?:http://d-nb.info/gnd/|PND[:/-]*\s?|\(DE-588[a]?\))([0-9xX-]+)=$1=i;
 
     s/^0+//;
     tr/x-/X/d;

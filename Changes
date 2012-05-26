@@ -1,5 +1,8 @@
 Revision history for Perl module SeeAlso::Identifier::PND
 
+0.60 Sat May 269 21:31:00 CET 2011
+    - allow MARC prefixes (DE-588a) and (DE-588) for GND
+
 0.59 Fri Dec  9 02:14:58 CET 2011
     - 9-digit-identifiers like 188416994 have been introduced,
       abandon restriction for 2nd digit of 9-digit identifiers

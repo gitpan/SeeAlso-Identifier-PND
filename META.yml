@@ -13,10 +13,10 @@ name: SeeAlso-Identifier-PND
 provides:
   SeeAlso::Identifier::PND:
     file: lib/SeeAlso/Identifier/PND.pm
-    version: 0.59
+    version: 0.60
 requires:
   SeeAlso::Identifier: 0.46
   SeeAlso::Identifier::GND: 0.54
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.59
+version: 0.60
