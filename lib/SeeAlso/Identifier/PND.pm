@@ -5,7 +5,7 @@ use warnings;
 BEGIN {
     use Exporter ();
     use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-    $VERSION     = '0.60';
+    $VERSION     = '0.61';
     @ISA         = qw(Exporter);
     #Give a hoot don't pollute, do not export more than needed by default
     @EXPORT      = qw();
@@ -93,9 +93,8 @@ sub parse {
 
     return "" unless defined $_;
 
-#   s/^\s+//; s/\s+$//; s/\s+/ /g;  # normalize-spaces()
     s/\s+//g;      # no kind of spaces makes sense in input data
-    s=^(?:http://d-nb.info/gnd/|PND[:/-]*\s?|\(DE-588[a]?\))([0-9xX-]+)=$1=i;
+    s=^(?:http://d-nb.info/gnd/|[GP]ND[:/-]*\s?|\(DE-588[a]?\))([0-9xX-]+)=$1=i;
 
     s/^0+//;
     tr/x-/X/d;

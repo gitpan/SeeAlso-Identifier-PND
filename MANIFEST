@@ -4,6 +4,7 @@ lib/SeeAlso/Identifier/PND.pm
 LICENSE
 Makefile.PL
 MANIFEST
+META.json
 META.yml
 README
 t/001_load.t

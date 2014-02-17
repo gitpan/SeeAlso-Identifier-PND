@@ -5,6 +5,7 @@ Module::Build->new
     ( module_name     => 'SeeAlso::Identifier::PND',
       license         => 'perl',
       requires        => {
+		perl => '5.8.2',
 		SeeAlso::Identifier      => 0.46,
 		SeeAlso::Identifier::GND => 0.54,
                          },
